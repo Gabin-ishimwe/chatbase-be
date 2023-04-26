@@ -13,6 +13,10 @@ async function bootstrap() {
     exclude: [{ path: '/', method: RequestMethod.GET }],
   });
 
+  /**
+   * Enabling api versioning
+   */
+  app.enableVersioning({ type: VersioningType.URI });
   // Swagger Doc configuration
   const config = new DocumentBuilder()
     .setTitle('Chatbase BE Documentation')
@@ -22,10 +26,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  /**
-   * Enabling api versioning
-   */
-  app.enableVersioning({ type: VersioningType.URI });
   await app.listen(3000);
 }
 bootstrap();
