@@ -11,14 +11,17 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  firstName String
-  lastName  String
-  email     String
-  password  String
-  credits   Int
-  openaiKey String
-  chatBots  Chatbot[]
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  firstName    String
+  lastName     String
+  email        String
+  password     String
+  credits      Int       @default(20)
+  openaiKey    String?
+  refreshToken String?
+  chatBots     Chatbot[]
+
+  @@unique(fields: [email], name: "user_identifier")
 }
 
 model Chatbot {
@@ -38,6 +41,15 @@ model Chatbot {
   createdAt     DateTime   @default(now())
   user          User       @relation(fields: [userId], references: [id])
   userId        String     @db.ObjectId
+}
+
+model ResetToken {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String   @db.ObjectId
+  token    String
+  createAt DateTime @default(now())
+
+  @@unique([userId])
 }
 
 type Messages {
