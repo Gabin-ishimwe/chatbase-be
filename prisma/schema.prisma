@@ -28,7 +28,7 @@ model Chatbot {
   id            String     @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   description   String
-  avatar        String
+  avatar        String  @default("https://res.cloudinary.com/dmepvxtwv/image/upload/v1682596041/avatar_image_iyomy2.png")
   systemPrompt  Messages[]
   response      Messages[]
   rateLimiting  Int
