@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SendMailModule } from './send-mail/send-mail.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { SendMailModule } from './send-mail/send-mail.module';
       },
     }),
     SendMailModule,
+    ChatbotModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
