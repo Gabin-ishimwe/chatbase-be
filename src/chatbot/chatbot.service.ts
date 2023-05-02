@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { uploadImage } from 'src/helper/upload';
 import { textBot } from 'src/helpers/prompts/textBot';
+import { getPDFText } from 'src/helpers/readPdf';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateChatBot } from './dto/create-chatbot.dto';
 import { SendMessageDto } from './dto/send-message.dto';
@@ -59,6 +60,7 @@ export class ChatbotService {
    */
   public async createChatBotFromFiles(file: Express.Multer.File) {
     try {
+      const pdf = await getPDFText(file.path, undefined);
       const uploadFile = await uploadImage(file);
       /**
        * openai api
@@ -68,6 +70,7 @@ export class ChatbotService {
       const createBot = await this.prismaService.chatbot.create({
         data: {
           fileUploads: uploadFile.secure_url,
+          description: pdf,
           userId: '64491bcddc0d412462b3fe6d',
         },
       });
@@ -100,10 +103,43 @@ export class ChatbotService {
 
       if (!findChatbot) return new NotFoundException('Chatbot not found');
       const chat = await textBot(message, findChatbot.description);
-      return { response: chat.data.choices[0].text };
+      /**
+       * compute previous prompts
+       */
+      const res = chat.data.choices[0].text.slice(3);
+      const newPrompt = this.computeNewPrompt(
+        res,
+        message,
+        findChatbot.description,
+      );
+      await this.prismaService.chatbot.update({
+        where: {
+          id: findChatbot.id,
+        },
+        data: {
+          systemPrompt: {
+            message: message,
+          },
+          response: {
+            message: res,
+          },
+          description: newPrompt,
+        },
+      });
+      return { response: res };
     } catch (error) {
-      console.log(error);
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+  public computeNewPrompt(
+    res: string,
+    message: string,
+    description: string,
+  ): string {
+    return `
+    ${description}
+    Question: ${message}
+    Answer: ${res}
+    `;
   }
 }

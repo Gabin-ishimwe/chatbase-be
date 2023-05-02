@@ -1,16 +1,12 @@
 import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
+import { deleteUploadedFile } from 'src/helpers/deleteUploadedFile';
 import cloudinary from '../config/cloudinary';
 import toStream = require('buffer-to-stream');
 
-export const uploadImage = (
+export const uploadImage = async (
   file: Express.Multer.File,
 ): Promise<UploadApiResponse | UploadApiErrorResponse> => {
-  return new Promise((resolve, reject) => {
-    const upload = cloudinary.uploader.upload_stream((error, result) => {
-      if (error) return reject(error);
-      resolve(result);
-    });
-
-    toStream(file.buffer).pipe(upload);
-  });
+  const result = await cloudinary.uploader.upload(file.path);
+  deleteUploadedFile(file.filename);
+  return result;
 };

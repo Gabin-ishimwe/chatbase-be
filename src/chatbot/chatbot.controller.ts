@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   FileTypeValidator,
+  Get,
   ParseFilePipe,
   Post,
   UploadedFile,
@@ -10,6 +11,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/auth/decorator/isPublic';
 import { User } from 'src/auth/decorator/user.decorator';
+import { getPDFText } from 'src/helpers/readPdf';
 import { ChatbotService } from './chatbot.service';
 import { CreateChatBot, FetchType } from './dto/create-chatbot.dto';
 import { SendMessageDto } from './dto/send-message.dto';
@@ -21,7 +23,7 @@ import { SendMessageDto } from './dto/send-message.dto';
 export class ChatbotController {
   constructor(private readonly chatbotService: ChatbotService) {}
   @Post('create-bot')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', { dest: './uploads' }))
   public async createChatBot(
     @User('userId') userId: string,
     @UploadedFile(
@@ -33,30 +35,33 @@ export class ChatbotController {
     file: Express.Multer.File,
     @Body() createChatBot: CreateChatBot,
   ) {
-    let response;
-    switch (createChatBot.fetchType) {
+    const { fetchType } = createChatBot;
+    switch (fetchType) {
       case FetchType.TEXT:
-        response = this.chatbotService.createChatBotFromText(
-          userId,
-          createChatBot,
-        );
-        break;
+        return this.chatbotService.createChatBotFromText(userId, createChatBot);
       case FetchType.FILE:
-        response = this.chatbotService.createChatBotFromFiles(file);
-        break;
+        return this.chatbotService.createChatBotFromFiles(file);
       case FetchType.WEBSITE:
         break;
-
       default:
-        return null;
+        throw new Error('Invalid fetchType');
     }
-
-    return response;
   }
 
   @Public()
   @Post('send-message')
   public async sendMessage(@Body() sendMessage: SendMessageDto) {
     return this.chatbotService.sendChatMessage(sendMessage);
+  }
+
+  @Public()
+  @Get()
+  public async test() {
+    const pdf = await getPDFText(
+      'https://res.cloudinary.com/dmepvxtwv/image/upload/v1683028324/sndkzdssdi9xhebvljps.pdf',
+      undefined,
+    );
+    console.log(pdf);
+    return pdf;
   }
 }
