@@ -26,7 +26,7 @@ export class CreateChatBot {
 
   @IsString()
   @IsOptional()
-  data: string;
+  description: string;
 
   @IsOptional()
   crawlLink: string;
