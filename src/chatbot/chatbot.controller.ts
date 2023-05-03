@@ -40,9 +40,12 @@ export class ChatbotController {
       case FetchType.TEXT:
         return this.chatbotService.createChatBotFromText(userId, createChatBot);
       case FetchType.FILE:
-        return this.chatbotService.createChatBotFromFiles(file);
+        return this.chatbotService.createChatBotFromFiles(userId, file);
       case FetchType.WEBSITE:
-        break;
+        return this.chatbotService.createChatBotFromWebScraping(
+          userId,
+          createChatBot,
+        );
       default:
         throw new Error('Invalid fetchType');
     }

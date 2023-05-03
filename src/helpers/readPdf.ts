@@ -15,7 +15,7 @@ export const getPDFText = async (pdfFile, maxPages) => {
     if (!parsedPDF) {
       throw new Error('Failed to parse PDF');
     }
-    console.log(parsedPDF.text);
+
     return parsedPDF.text;
   } catch (err) {
     return err.message;

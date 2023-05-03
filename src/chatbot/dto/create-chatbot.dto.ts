@@ -5,8 +5,10 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  Matches,
 } from 'class-validator';
+
+const urlRegex =
+  /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)+[a-zA-Z0-9_\/%=-]*(?:\?[a-zA-Z0-9_\/%=-]*)?(?:#[a-zA-Z0-9_-]*)?$/;
 
 export enum FetchType {
   FILE = 'file',
@@ -37,7 +39,11 @@ export class CreateChatBot {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  @Matches('^(https?|ftp)://[^s/$.?#].[^s]*$', undefined, { each: true })
+  // @Matches(
+  //   '/^(https?://)?(www.)?([a-z0-9-]+.)*[a-z0-9-]+.[a-z]+(/[^s]*)?$/i',
+  //   undefined,
+  //   { each: true },
+  // )
   @Type(() => String)
   fetchSites: string[];
 }

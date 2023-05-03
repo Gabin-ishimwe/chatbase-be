@@ -8,6 +8,7 @@ import {
 import { uploadImage } from 'src/helper/upload';
 import { textBot } from 'src/helpers/prompts/textBot';
 import { getPDFText } from 'src/helpers/readPdf';
+import { getScrapeData } from 'src/helpers/scrapeData';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateChatBot } from './dto/create-chatbot.dto';
 import { SendMessageDto } from './dto/send-message.dto';
@@ -58,7 +59,10 @@ export class ChatbotService {
    * @param file
    * @returns
    */
-  public async createChatBotFromFiles(file: Express.Multer.File) {
+  public async createChatBotFromFiles(
+    userId: string,
+    file: Express.Multer.File,
+  ) {
     try {
       const pdf = await getPDFText(file.path, undefined);
       const uploadFile = await uploadImage(file);
@@ -71,7 +75,7 @@ export class ChatbotService {
         data: {
           fileUploads: uploadFile.secure_url,
           description: pdf,
-          userId: '64491bcddc0d412462b3fe6d',
+          userId,
         },
       });
       return createBot;
@@ -85,7 +89,29 @@ export class ChatbotService {
    * Create chatbot from web scrapped data
    * @param createChatBot
    */
-  public async createChatBotFromWebScraping(createChatBot: CreateChatBot) {}
+  public async createChatBotFromWebScraping(
+    userId: string,
+    createChatBot: CreateChatBot,
+  ) {
+    try {
+      const { fetchSites } = createChatBot;
+      let rawData = '';
+      for (const url in fetchSites) {
+        const res = await getScrapeData(url);
+        rawData += res;
+      }
+      // console.log(rawData);
+      // return true;
+      return await this.prismaService.chatbot.create({
+        data: {
+          description: rawData,
+          userId: userId,
+        },
+      });
+    } catch (error) {
+      return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   public async sendChatMessage(sendMessage: SendMessageDto) {
     try {
@@ -110,7 +136,7 @@ export class ChatbotService {
       const newPrompt = this.computeNewPrompt(
         res,
         message,
-        findChatbot.description,
+        JSON.stringify(findChatbot.description),
       );
       await this.prismaService.chatbot.update({
         where: {
@@ -128,6 +154,7 @@ export class ChatbotService {
       });
       return { response: res };
     } catch (error) {
+      console.log(error);
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
