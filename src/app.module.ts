@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SendMailModule } from './send-mail/send-mail.module';
 
@@ -24,6 +25,7 @@ import { SendMailModule } from './send-mail/send-mail.module';
       },
     }),
     SendMailModule,
+    ChatbotModule,
   ],
   controllers: [AppController],
   providers: [AppService],
