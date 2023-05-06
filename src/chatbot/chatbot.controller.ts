@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   FileTypeValidator,
   Get,
   ParseFilePipe,
@@ -66,5 +67,11 @@ export class ChatbotController {
     );
     console.log(pdf);
     return pdf;
+  }
+
+  @Public()
+  @Delete()
+  public async deleteAll() {
+    return await this.chatbotService.deleteAllBot();
   }
 }

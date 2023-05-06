@@ -31,8 +31,7 @@ model Chatbot {
   description   String?
   avatar        String    @default("https://res.cloudinary.com/dmepvxtwv/image/upload/v1682596041/avatar_image_iyomy2.png")
   fileUploads   String?
-  systemPrompt  Message[]
-  response      Message[]
+  messages      Message[]
   rateLimiting  Int?
   model         String?
   apiKey        String?
@@ -58,6 +57,7 @@ model ResetToken {
 }
 
 type Message {
+  role String
   message  String
   createAt DateTime @default(now())
 }

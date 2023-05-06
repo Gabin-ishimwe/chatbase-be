@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Public } from './decorator/isPublic';
@@ -37,5 +37,11 @@ export class AuthController {
   @Post('change-password')
   public changePassword(@Body() changePassword: ChangePasswordDto) {
     return this.authService.changePassword(changePassword);
+  }
+
+  @Public()
+  @Delete()
+  public deleteAllUsers() {
+    return this.authService.deleteAllUsers();
   }
 }

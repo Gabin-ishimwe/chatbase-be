@@ -194,4 +194,8 @@ export class AuthService {
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  public async deleteAllUsers() {
+    return await this.prismaService.user.deleteMany();
+  }
 }

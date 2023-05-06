@@ -138,17 +138,23 @@ export class ChatbotService {
         message,
         JSON.stringify(findChatbot.description),
       );
+
+      type FormatMessage = {
+        role: string;
+        message: string;
+      };
+
+      const formatMessage: FormatMessage = { role: 'USER', message: message };
+      const formatAiMessage: FormatMessage = {
+        role: 'ASSISTANT',
+        message: res,
+      };
       await this.prismaService.chatbot.update({
         where: {
           id: findChatbot.id,
         },
         data: {
-          systemPrompt: {
-            message: message,
-          },
-          response: {
-            message: res,
-          },
+          messages: [...findChatbot.messages, formatAiMessage, formatMessage],
           description: newPrompt,
         },
       });
@@ -168,5 +174,9 @@ export class ChatbotService {
     Question: ${message}
     Answer: ${res}
     `;
+  }
+
+  public async deleteAllBot() {
+    return await this.prismaService.chatbot.deleteMany();
   }
 }
