@@ -47,7 +47,7 @@ export class ChatbotService {
           userId,
         },
       });
-      return chatbot;
+      return { message: 'Chatbot created', data: chatbot };
     } catch (error) {
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -78,7 +78,7 @@ export class ChatbotService {
           userId,
         },
       });
-      return createBot;
+      return { message: 'Chatbot created', data: createBot };
     } catch (error) {
       console.log(error);
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -102,12 +102,13 @@ export class ChatbotService {
       }
       // console.log(rawData);
       // return true;
-      return await this.prismaService.chatbot.create({
+      const chatbot = await this.prismaService.chatbot.create({
         data: {
           description: rawData,
           userId: userId,
         },
       });
+      return { message: 'Chatbot created', data: chatbot };
     } catch (error) {
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -178,5 +179,18 @@ export class ChatbotService {
 
   public async deleteAllBot() {
     return await this.prismaService.chatbot.deleteMany();
+  }
+
+  public async getUserBots(userId: string) {
+    try {
+      const data = await this.prismaService.chatbot.findMany({
+        where: {
+          userId,
+        },
+      });
+      return { message: 'All chatbots', data };
+    } catch (error) {
+      return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
