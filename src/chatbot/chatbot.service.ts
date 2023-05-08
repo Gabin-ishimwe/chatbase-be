@@ -196,4 +196,22 @@ export class ChatbotService {
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  public async oneBot(userId: string, botId: string) {
+    try {
+      const findBot = await this.prismaService.chatbot.findFirst({
+        where: {
+          userId,
+          id: botId,
+        },
+      });
+      if (!findBot) return new NotFoundException("Chatbot doesn't exist");
+      return {
+        message: 'User bot',
+        data: findBot,
+      };
+    } catch (error) {
+      return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

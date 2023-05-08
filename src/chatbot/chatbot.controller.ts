@@ -4,6 +4,7 @@ import {
   Delete,
   FileTypeValidator,
   Get,
+  Param,
   ParseFilePipe,
   Post,
   UploadedFile,
@@ -49,6 +50,14 @@ export class ChatbotController {
       default:
         throw new Error('Invalid fetchType');
     }
+  }
+
+  @Get(':botId')
+  public async getOneBot(
+    @User('userId') userId: string,
+    @Param('botId') botId: string,
+  ) {
+    return await this.chatbotService.oneBot(userId, botId);
   }
 
   @Get()
