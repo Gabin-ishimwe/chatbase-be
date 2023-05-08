@@ -187,6 +187,9 @@ export class ChatbotService {
         where: {
           userId,
         },
+        include: {
+          user: true,
+        },
       });
       return { message: 'All chatbots', data };
     } catch (error) {
