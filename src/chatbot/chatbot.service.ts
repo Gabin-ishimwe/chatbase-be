@@ -134,11 +134,11 @@ export class ChatbotService {
        * compute previous prompts
        */
       const res = chat.data.choices[0].text.slice(3);
-      const newPrompt = this.computeNewPrompt(
-        res,
-        message,
-        JSON.stringify(findChatbot.description),
-      );
+      // const newPrompt = this.computeNewPrompt(
+      //   res,
+      //   message,
+      //   JSON.stringify(findChatbot.description),
+      // );
 
       type FormatMessage = {
         role: string;
@@ -156,7 +156,6 @@ export class ChatbotService {
         },
         data: {
           messages: [...findChatbot.messages, formatAiMessage, formatMessage],
-          description: newPrompt,
         },
       });
       return { response: res };
