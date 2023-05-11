@@ -7,15 +7,21 @@ import {
   Param,
   ParseFilePipe,
   Post,
+  Put,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 import { Public } from 'src/auth/decorator/isPublic';
 import { User } from 'src/auth/decorator/user.decorator';
 import { ChatbotService } from './chatbot.service';
 import { CreateChatBot, FetchType } from './dto/create-chatbot.dto';
 import { SendMessageDto } from './dto/send-message.dto';
+import { UpdateChatBot } from './dto/update-chatbot.dto';
 
 @Controller({
   path: '/chatbot',
@@ -50,6 +56,36 @@ export class ChatbotController {
       default:
         throw new Error('Invalid fetchType');
     }
+  }
+
+  @Put(':botId')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'file', maxCount: 1 },
+      { name: 'chatbotProfile', maxCount: 1 },
+    ]),
+  )
+  public async updateBot(
+    @Param('botId') chatbotId: string,
+    @User('userId') userId: string,
+    @Body()
+    updateBot: UpdateChatBot,
+    @UploadedFiles(
+      new ParseFilePipe({
+        fileIsRequired: false,
+      }),
+    )
+    upload: {
+      file?: Express.Multer.File[];
+      chatbotProfile?: Express.Multer.File[];
+    },
+  ) {
+    return await this.chatbotService.updateChatBot(
+      chatbotId,
+      userId,
+      updateBot,
+      upload,
+    );
   }
 
   @Get(':botId')

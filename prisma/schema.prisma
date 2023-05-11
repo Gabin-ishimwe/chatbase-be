@@ -26,23 +26,25 @@ model User {
 }
 
 model Chatbot {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  description   String?
-  avatar        String    @default("https://res.cloudinary.com/dmepvxtwv/image/upload/v1682596041/avatar_image_iyomy2.png")
-  fileUploads   String?
-  messages      Message[]
-  rateLimiting  Int?
-  model         String?
-  apiKey        String?
-  botLink       String?
-  embeddingCode String?
-  isPublic      Boolean   @default(true)
-  usageCredits  Int       @default(0)
-  createdAt     DateTime  @default(now())
-  user          User      @relation(fields: [userId], references: [id])
-  userId        String    @db.ObjectId
-  // Messages      Messages[]
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  chatbotId       String    @unique
+  name            String?
+  description     String?
+  avatar          String    @default("https://res.cloudinary.com/dmepvxtwv/image/upload/v1682596041/avatar_image_iyomy2.png")
+  fileUploads     String?
+  messages        Message[]
+  rateLimiting    Int?
+  model           String?   @default("text-davinci-003")
+  apiKey          String?
+  botLink         String?
+  embeddingCode   String?
+  isPublic        Boolean   @default(false)
+  usageCredits    Int       @default(30)
+  chatbotInterface Interface?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  user            User      @relation(fields: [userId], references: [id])
+  userId          String    @db.ObjectId @unique
 
   @@unique([name])
 }
@@ -57,9 +59,17 @@ model ResetToken {
 }
 
 type Message {
-  role String
+  role     String
   message  String
   createAt DateTime @default(now())
+}
+
+type Interface {
+  theme          String  @default("light")
+  initialMessage String  @default("Hi! What can I help you with?")
+  messageColor   String  @default("#3b82f6")
+  displayName    String?
+  chatbotProfile String?
 }
 
 // model Messages {

@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { nanoid } from 'nanoid';
 import { uploadImage } from 'src/helper/upload';
 import { textBot } from 'src/helpers/prompts/textBot';
 import { getPDFText } from 'src/helpers/readPdf';
@@ -12,6 +13,7 @@ import { getScrapeData } from 'src/helpers/scrapeData';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateChatBot } from './dto/create-chatbot.dto';
 import { SendMessageDto } from './dto/send-message.dto';
+import { UpdateChatBot } from './dto/update-chatbot.dto';
 
 @Injectable()
 export class ChatbotService {
@@ -42,9 +44,15 @@ export class ChatbotService {
        */
       const chatbot = await this.prismaService.chatbot.create({
         data: {
+          chatbotId: nanoid(),
           name,
           description,
           userId,
+          chatbotInterface: {
+            theme: 'light',
+            initialMessage: 'Hi! What can I help you with?',
+            messageColor: '#3b82f6',
+          },
         },
       });
       return { message: 'Chatbot created', data: chatbot };
@@ -73,9 +81,15 @@ export class ChatbotService {
        */
       const createBot = await this.prismaService.chatbot.create({
         data: {
+          chatbotId: nanoid(),
           fileUploads: uploadFile.secure_url,
           description: pdf,
           userId,
+          chatbotInterface: {
+            theme: 'light',
+            initialMessage: 'Hi! What can I help you with?',
+            messageColor: '#3b82f6',
+          },
         },
       });
       return { message: 'Chatbot created', data: createBot };
@@ -104,8 +118,14 @@ export class ChatbotService {
       // return true;
       const chatbot = await this.prismaService.chatbot.create({
         data: {
+          chatbotId: nanoid(),
           description: rawData,
           userId: userId,
+          chatbotInterface: {
+            theme: 'light',
+            initialMessage: 'Hi! What can I help you with?',
+            messageColor: '#3b82f6',
+          },
         },
       });
       return { message: 'Chatbot created', data: chatbot };
@@ -174,6 +194,62 @@ export class ChatbotService {
     Question: ${message}
     Answer: ${res}
     `;
+  }
+
+  public async updateChatBot(
+    chatbotId: string,
+    userId: string,
+    updateBot: UpdateChatBot,
+    upload: {
+      file?: Express.Multer.File[];
+      chatbotProfile?: Express.Multer.File[];
+    },
+  ) {
+    try {
+      console.log(upload);
+      console.log(updateBot);
+      const findChatbot = await this.prismaService.chatbot.findFirst({
+        where: {
+          id: chatbotId,
+          userId,
+        },
+      });
+      if (!findChatbot) return new NotFoundException("chatbot doesn't exist");
+
+      // file upload
+      let fileUploads;
+      let botProfile;
+      if (upload?.file) fileUploads = await uploadImage(upload?.file[0]);
+      if (upload?.chatbotProfile)
+        botProfile = await uploadImage(upload?.chatbotProfile[0]);
+      const updateChat = await this.prismaService.chatbot.update({
+        where: {
+          id: chatbotId,
+        },
+        data: {
+          name: updateBot.name,
+          description: updateBot.description,
+          fileUploads: fileUploads?.secure_url,
+          model: updateBot.model,
+          botLink: updateBot.botLink,
+          isPublic: updateBot.isPublic,
+          chatbotInterface: {
+            theme: updateBot.theme,
+            initialMessage: updateBot.initialMessage,
+            messageColor: updateBot.messageColor,
+            displayName: updateBot.displayName,
+            chatbotProfile: botProfile?.secure_url,
+          },
+        },
+      });
+      return {
+        message: 'Chatbot updated',
+        data: updateChat,
+      };
+    } catch (error) {
+      console.log(error);
+      return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   public async deleteAllBot() {
