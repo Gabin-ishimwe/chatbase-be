@@ -232,7 +232,7 @@ export class ChatbotService {
           fileUploads: fileUploads?.secure_url,
           model: updateBot.model,
           botLink: updateBot.botLink,
-          isPublic: updateBot.isPublic,
+          isPublic: JSON.parse(updateBot.isPublic),
           chatbotInterface: {
             theme: updateBot.theme,
             initialMessage: updateBot.initialMessage,

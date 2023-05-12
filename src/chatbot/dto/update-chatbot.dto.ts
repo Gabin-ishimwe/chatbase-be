@@ -1,5 +1,5 @@
 import { OmitType } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { CreateChatBot } from './create-chatbot.dto';
 
 export class UpdateChatBot extends OmitType(CreateChatBot, ['fetchType']) {
@@ -11,9 +11,8 @@ export class UpdateChatBot extends OmitType(CreateChatBot, ['fetchType']) {
   @IsOptional()
   model: string;
 
-  @IsBoolean()
   @IsOptional()
-  isPublic: boolean;
+  isPublic: string;
 
   @IsString()
   @IsOptional()
