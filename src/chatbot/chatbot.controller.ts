@@ -107,6 +107,14 @@ export class ChatbotController {
     return this.chatbotService.sendChatMessage(sendMessage);
   }
 
+  @Delete(':botId')
+  public async deleteUserBot(
+    @User('userId') userId: string,
+    @Param('botId') botId: string,
+  ) {
+    return this.chatbotService.deleteUserBot(userId, botId);
+  }
+
   @Public()
   @Delete()
   public async deleteAll() {

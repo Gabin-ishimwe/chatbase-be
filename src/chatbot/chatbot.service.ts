@@ -272,6 +272,29 @@ export class ChatbotService {
     }
   }
 
+  public async deleteUserBot(userId: string, botId: string) {
+    try {
+      const findBot = await this.prismaService.chatbot.findFirst({
+        where: {
+          userId,
+          id: botId,
+        },
+      });
+      if (!findBot) return new NotFoundException("Chatbot doesn't exist");
+      await this.prismaService.chatbot.delete({
+        where: {
+          id: botId,
+        },
+      });
+      return {
+        message: 'Chatbot deleted',
+      };
+    } catch (error) {
+      console.log(error);
+      return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   public async oneBot(userId: string, botId: string) {
     try {
       const findBot = await this.prismaService.chatbot.findFirst({
