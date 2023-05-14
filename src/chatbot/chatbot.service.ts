@@ -322,7 +322,36 @@ export class ChatbotService {
         },
       });
       if (!findBot) return new NotFoundException("Chatbot doesn't exist");
+      const sharePublic = await this.prismaService.chatbot.update({
+        where: {
+          id: botId,
+        },
+        data: {
+          isPublic: true,
+        },
+      });
+      return {
+        message: 'Bot shared public',
+        data: sharePublic,
+      };
     } catch (error) {
+      return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  public async publicBots() {
+    try {
+      const findBot = await this.prismaService.chatbot.findMany({
+        where: {
+          isPublic: true,
+        },
+      });
+      return {
+        message: 'Public bots',
+        data: findBot,
+      };
+    } catch (error) {
+      console.log(error);
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

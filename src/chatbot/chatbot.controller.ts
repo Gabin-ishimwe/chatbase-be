@@ -88,6 +88,21 @@ export class ChatbotController {
     );
   }
 
+  @Public()
+  @Get('public')
+  public async publicBots() {
+    return await this.chatbotService.publicBots();
+  }
+
+  @Public()
+  @Put('share/:botId')
+  public async shareBot(
+    @Param('botId') botId: string,
+    @User('userId') userId: string,
+  ) {
+    return await this.chatbotService.shareBot(userId, botId);
+  }
+
   @Get(':botId')
   public async getOneBot(
     @User('userId') userId: string,
