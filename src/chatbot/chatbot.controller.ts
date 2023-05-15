@@ -94,7 +94,6 @@ export class ChatbotController {
     return await this.chatbotService.publicBots();
   }
 
-  @Public()
   @Put('share/:botId')
   public async shareBot(
     @Param('botId') botId: string,

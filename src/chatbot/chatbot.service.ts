@@ -153,7 +153,7 @@ export class ChatbotService {
       /**
        * compute previous prompts
        */
-      const res = chat.data.choices[0].text.slice(3);
+      const res = chat.data.choices[0].text;
       // const newPrompt = this.computeNewPrompt(
       //   res,
       //   message,
